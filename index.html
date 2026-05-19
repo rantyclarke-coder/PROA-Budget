@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank of PROA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #1a2555;
+    --red: #c8281e;
+    --white: #ffffff;
+    --off-white: #f7f6f2;
+    --light-gray: #e8e6e0;
+    --text-muted: #6b6b6b;
+    --text-dark: #1a1a1a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 68px;
+    transition: box-shadow 0.3s;
+  }
+  nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .logo-svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .logo-text span {
+    display: block;
+    font-size: 0.65rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-dark);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--red); }
+
+  .nav-cta {
+    background: var(--navy) !important;
+    color: var(--white) !important;
+    padding: 0.5rem 1.25rem;
+    border-radius: 2px;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--red) !important; color: var(--white) !important; }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--navy);
+    transition: all 0.3s;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 68px;
+  }
+
+  .hero-left {
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem 4rem 5rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left::before {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    border: 60px solid rgba(200,40,30,0.12);
+    border-radius: 50%;
+  }
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    width: 180px;
+    height: 180px;
+    border: 40px solid rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.75;
+    margin-bottom: 3rem;
+    max-width: 420px;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--red);
+    color: var(--white);
+    padding: 0.85rem 1.75rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-primary:hover { background: #a51e15; transform: translateY(-1px); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--white);
+    padding: 0.85rem 1.75rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,0.07); }
+
+  .btn-arrow {
+    font-size: 1rem;
+    transition: transform 0.2s;
+  }
+  .btn-primary:hover .btn-arrow,
+  .btn-secondary:hover .btn-arrow { transform: translateX(3px); }
+
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-item {}
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--white);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .hero-right {
+    background: var(--off-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+    position: relative;
+  }
+
+  .hero-right-inner {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .welcome-card {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .welcome-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--navy);
+  }
+
+  .welcome-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .welcome-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+  }
+  .welcome-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .action-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .action-card {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    padding: 1.5rem;
+    text-decoration: none;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .action-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--navy);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .action-card:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,37,85,0.1); }
+  .action-card:hover::after { transform: scaleX(1); }
+
+  .action-card.red::after { background: var(--red); }
+  .action-card.red:hover { border-color: var(--red); box-shadow: 0 8px 24px rgba(200,40,30,0.1); }
+
+  .action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+  }
+  .action-icon.navy { background: rgba(26,37,85,0.08); }
+  .action-icon.red { background: rgba(200,40,30,0.08); }
+
+  .action-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+  }
+  .action-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .action-arrow {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--navy);
+    text-transform: uppercase;
+  }
+  .action-card.red .action-arrow { color: var(--red); }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: var(--navy);
+    color: rgba(255,255,255,0.7);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+  .ticker-item { margin-right: 4rem; }
+  .ticker-item strong { color: var(--white); margin-right: 0.5rem; }
+  .ticker-up { color: #4ade80; }
+  .ticker-down { color: #f87171; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* ── FEATURES ── */
+  .features {
+    padding: 6rem 5rem;
+    background: var(--white);
+  }
+  .section-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 3.5rem;
+    max-width: 500px;
+    line-height: 1.25;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    border: 1px solid var(--light-gray);
+    transition: all 0.25s;
+  }
+  .feature-card:hover { border-color: var(--navy); }
+
+  .feature-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--light-gray);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .feature-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+  }
+  .feature-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.5);
+    padding: 2rem 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+  }
+  footer .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--white);
+    font-size: 1rem;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 3rem 1.5rem; min-height: 60vh; }
+    .hero-right { padding: 2rem 1.5rem; }
+    .hero-stats { gap: 1.5rem; }
+
+    .features { padding: 4rem 1.5rem; }
+    .features-grid { grid-template-columns: 1fr; }
+
+    .action-cards { grid-template-columns: 1fr; }
+
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.5rem; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-in { opacity: 0; transform: translateY(20px); animation: fadeIn 0.7s forwards; }
+  .fade-in:nth-child(1) { animation-delay: 0.1s; }
+  .fade-in:nth-child(2) { animation-delay: 0.25s; }
+  .fade-in:nth-child(3) { animation-delay: 0.4s; }
+  .fade-in:nth-child(4) { animation-delay: 0.55s; }
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <svg class="logo-svg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="44" height="44" rx="3" fill="white"/>
+      <!-- Blue stripes left -->
+      <rect x="3" y="18" width="14" height="4" rx="1" fill="#1a2555"/>
+      <rect x="3" y="24" width="14" height="4" rx="1" fill="#1a2555"/>
+      <!-- Red curved stripes -->
+      <path d="M16 10 Q30 8 41 14 L41 18 Q30 12 16 14 Z" fill="#c8281e"/>
+      <path d="M14 16 Q30 13 41 20 L41 25 Q30 18 14 21 Z" fill="#c8281e"/>
+      <path d="M12 23 Q28 20 41 28 L41 33 Q28 25 12 28 Z" fill="#c8281e"/>
+      <path d="M10 30 Q26 27 40 36 L38 40 Q24 32 10 35 Z" fill="#c8281e"/>
+    </svg>
+    <div class="logo-text">
+      Bank of PROA
+      <span>Central Banking Authority</span>
+    </div>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#features">About</a></li>
+    <li><a href="#">Economy</a></li>
+    <li><a href="#">Reports</a></li>
+    <li><a href="#" class="nav-cta">Budget Maker →</a></li>
+  </ul>
+
+  <div class="hamburger" onclick="this.classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker" style="margin-top: 68px;">
+  <div class="ticker-inner">
+    <span class="ticker-item"><strong>GDP</strong> $847.3B <span class="ticker-up">▲ 2.1%</span></span>
+    <span class="ticker-item"><strong>INFLATION</strong> 3.2% <span class="ticker-down">▼ 0.4%</span></span>
+    <span class="ticker-item"><strong>UNEMPLOYMENT</strong> 6.8% <span class="ticker-up">▲ 0.2%</span></span>
+    <span class="ticker-item"><strong>NATIONAL DEBT</strong> $195.5B <span class="ticker-down">▼ 1.1%</span></span>
+    <span class="ticker-item"><strong>FEDERAL REVENUE</strong> $64.9B <span class="ticker-up">▲ 8.2%</span></span>
+    <span class="ticker-item"><strong>PRIME RATE</strong> 8.50% <span class="ticker-down">▼ 0.25%</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><strong>GDP</strong> $847.3B <span class="ticker-up">▲ 2.1%</span></span>
+    <span class="ticker-item"><strong>INFLATION</strong> 3.2% <span class="ticker-down">▼ 0.4%</span></span>
+    <span class="ticker-item"><strong>UNEMPLOYMENT</strong> 6.8% <span class="ticker-up">▲ 0.2%</span></span>
+    <span class="ticker-item"><strong>NATIONAL DEBT</strong> $195.5B <span class="ticker-down">▼ 1.1%</span></span>
+    <span class="ticker-item"><strong>FEDERAL REVENUE</strong> $64.9B <span class="ticker-up">▲ 8.2%</span></span>
+    <span class="ticker-item"><strong>PRIME RATE</strong> 8.50% <span class="ticker-down">▼ 0.25%</span></span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow fade-in">Fiscal Year 1985–86</p>
+    <h1 class="hero-title fade-in">The Central Bank<br>of PROA</h1>
+    <p class="hero-subtitle fade-in">Governing the fiscal affairs of the Commonwealth. Transparent budgeting, economic oversight, and financial stability for all five regions.</p>
+    <div class="hero-buttons fade-in">
+      <a href="#" class="btn-primary">Budget Maker <span class="btn-arrow">→</span></a>
+      <a href="#" class="btn-secondary">Live Economy <span class="btn-arrow">→</span></a>
+    </div>
+    <div class="hero-stats fade-in">
+      <div class="stat-item">
+        <span class="stat-num">$64.9B</span>
+        <span class="stat-label">Federal Revenue</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Governments</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">FY 85–86</span>
+        <span class="stat-label">Active Budget</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-right-inner">
+      <div class="welcome-card">
+        <p class="welcome-label">Welcome Message</p>
+        <h2 class="welcome-heading">Building a stronger PROA, one budget at a time.</h2>
+        <p class="welcome-text">The Bank of PROA oversees the budgetary framework for the Federal Government and all four regional administrations — ensuring accountability, transparency, and fiscal discipline across the Commonwealth.</p>
+      </div>
+
+      <div class="action-cards">
+        <a href="#" class="action-card">
+          <div class="action-icon navy">📊</div>
+          <div class="action-title">Budget Maker</div>
+          <div class="action-desc">Build, edit and export official budgets for any government.</div>
+          <span class="action-arrow">Open →</span>
+        </a>
+        <a href="#" class="action-card red">
+          <div class="action-icon red">📈</div>
+          <div class="action-title">Live Economy</div>
+          <div class="action-desc">Real-time economic indicators and macroeconomic data.</div>
+          <span class="action-arrow">View →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <p class="section-eyebrow">What we do</p>
+  <h2 class="section-title">Built for governance. Designed for clarity.</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-num">01</div>
+      <div class="feature-title">Multi-Government Budgeting</div>
+      <div class="feature-desc">Federal and all four regional governments manage their budgets independently — with a consolidated federal view across all five.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">02</div>
+      <div class="feature-title">Instant Doc Export</div>
+      <div class="feature-desc">Every completed budget exports to a fully formatted official document — no manual work, no data entry errors.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">03</div>
+      <div class="feature-title">Economic Simulation</div>
+      <div class="feature-desc">Track GDP, unemployment, inflation and fiscal health across all governments in real time. Coming in Phase II.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Bank of PROA</span>
+  <span>© 1985 Commonwealth of PROA · All rights reserved</span>
+  <span>Central Banking Authority</span>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
+</script>
+
+</body>
+</html>
