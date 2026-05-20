@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Maker — Bank of PROA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#1a2555;--red:#c8281e;--white:#fff;--off:#f7f6f2;
+  --border:#e2e0d8;--muted:#6b6b6b;--dark:#1a1a1a;
+  --green:#16a34a;--orange:#ea580c;
+  --sidebar:280px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;background:var(--off);color:var(--dark);min-height:100vh;display:flex;flex-direction:column}
+
+/* NAV */
+nav{background:var(--navy);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo img{width:32px;height:32px;object-fit:contain}
+.nav-logo span{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--white)}
+.nav-back{color:rgba(255,255,255,0.6);font-size:0.8rem;text-decoration:none;letter-spacing:0.06em;transition:color 0.2s}
+.nav-back:hover{color:var(--white)}
+
+/* SELECTOR BAR */
+.selector-bar{background:var(--white);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.selector-group{display:flex;flex-direction:column;gap:4px}
+.selector-label{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)}
+.selector-group select{
+  font-family:'Source Sans 3',sans-serif;font-size:0.9rem;font-weight:600;
+  color:var(--navy);background:var(--off);border:1.5px solid var(--border);
+  padding:0.4rem 2rem 0.4rem 0.75rem;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a2555'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 0.6rem center;
+  transition:border-color 0.2s;
+}
+.selector-group select:focus{outline:none;border-color:var(--navy)}
+.selector-divider{width:1px;height:40px;background:var(--border)}
+.govt-badge{display:inline-flex;align-items:center;gap:6px;padding:0.35rem 0.85rem;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
+.badge-federal{background:rgba(26,37,85,0.1);color:var(--navy)}
+.badge-ne{background:rgba(200,40,30,0.1);color:var(--red)}
+.badge-dixie{background:rgba(234,88,12,0.1);color:var(--orange)}
+.badge-lincoln{background:rgba(22,163,74,0.1);color:var(--green)}
+.badge-pacifica{background:rgba(37,99,235,0.1);color:#2563eb}
+
+/* MAIN LAYOUT */
+.main{display:flex;flex:1;min-height:0}
+
+/* SIDEBAR SUMMARY */
+.summary-sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);
+  background:var(--navy);padding:1.5rem;
+  position:sticky;top:56px;height:calc(100vh - 56px);
+  overflow-y:auto;display:flex;flex-direction:column;gap:1rem
+}
+.summary-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--white);margin-bottom:0.5rem}
+.summary-card{background:rgba(255,255,255,0.06);padding:1rem;border:1px solid rgba(255,255,255,0.1)}
+.summary-card-label{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:0.35rem}
+.summary-card-value{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:var(--white)}
+.summary-card-change{font-size:0.7rem;margin-top:0.2rem;font-family:'JetBrains Mono',monospace}
+.surplus{color:#4ade80}.deficit{color:#f87171}
+.summary-divider{height:1px;background:rgba(255,255,255,0.1)}
+.export-btn{
+  margin-top:auto;background:var(--red);color:var(--white);border:none;
+  padding:0.85rem;font-family:'Source Sans 3',sans-serif;font-size:0.85rem;
+  font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;
+  transition:background 0.2s;width:100%
+}
+.export-btn:hover{background:#a51e15}
+.discord-btn{
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15);
+  padding:0.65rem;font-family:'Source Sans 3',sans-serif;font-size:0.8rem;
+  font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;width:100%
+}
+.discord-btn:hover{background:rgba(255,255,255,0.15);color:var(--white)}
+
+/* CONTENT */
+.content{flex:1;padding:2rem;overflow-y:auto;max-width:900px}
+.section-header{
+  display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;
+  padding-bottom:0.75rem;border-bottom:2px solid var(--navy)
+}
+.section-num{
+  font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;
+  color:rgba(26,37,85,0.15);line-height:1
+}
+.section-title-text{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--navy)}
+.section-total{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;color:var(--muted)}
+
+/* TAX GROUP */
+.tax-group{background:var(--white);border:1px solid var(--border);margin-bottom:1rem}
+.tax-group-header{
+  padding:0.85rem 1.25rem;display:flex;align-items:center;gap:1rem;
+  border-bottom:1px solid var(--border);background:var(--white);cursor:pointer;
+  transition:background 0.2s;user-select:none
+}
+.tax-group-header:hover{background:var(--off)}
+.tax-group-title{font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);flex:1}
+.tax-group-total{font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;color:var(--navy)}
+.tax-group-toggle{font-size:0.7rem;color:var(--muted);transition:transform 0.25s}
+.tax-group-toggle.open{transform:rotate(180deg)}
+.tax-group-body{display:none;padding:0}
+.tax-group-body.open{display:block}
+
+/* TAX ROW */
+.tax-row{
+  display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1.2fr;
+  gap:0.5rem;align-items:center;padding:0.65rem 1.25rem;
+  border-bottom:1px solid var(--border);transition:background 0.15s
+}
+.tax-row:last-child{border-bottom:none}
+.tax-row:hover{background:var(--off)}
+.tax-row-label{font-size:0.8rem;color:var(--dark)}
+.tax-col-head{
+  display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1.2fr;
+  gap:0.5rem;padding:0.4rem 1.25rem;background:var(--off);
+  border-bottom:1px solid var(--border)
+}
+.col-label{font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+
+/* PAYROLL SPECIAL */
+.payroll-pair{display:flex;align-items:center;gap:0.5rem}
+.payroll-pair input{flex:1}
+.payroll-link{font-size:0.65rem;color:var(--muted);white-space:nowrap}
+
+/* INPUT */
+.rate-input{
+  font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;
+  color:var(--navy);background:var(--off);border:1.5px solid var(--border);
+  padding:0.35rem 0.5rem;width:100%;text-align:right;transition:border-color 0.2s
+}
+.rate-input:focus{outline:none;border-color:var(--navy);background:var(--white)}
+.rate-input.user-edited{border-color:var(--orange);background:#fff7ed}
+.prev-rate{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--muted);text-align:right}
+.pct-change{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600}
+.pct-pos{color:var(--green)}.pct-neg{color:var(--red)}.pct-zero{color:var(--muted)}
+.proj-revenue{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;color:var(--navy);text-align:right}
+
+/* DEPT GROUP */
+.dept-group{background:var(--white);border:1px solid var(--border);margin-bottom:0.75rem}
+.dept-header{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;
+  gap:0.75rem;align-items:center;padding:0.85rem 1.25rem;
+  cursor:pointer;transition:background 0.2s;border-bottom:1px solid transparent
+}
+.dept-header:hover{background:var(--off)}
+.dept-header.expanded{border-bottom-color:var(--border)}
+.dept-name{font-size:0.85rem;font-weight:700;color:var(--navy)}
+.dept-input-wrap{display:flex;align-items:center;gap:4px}
+.dept-input-wrap button{
+  background:var(--off);border:1.5px solid var(--border);width:24px;height:28px;
+  font-size:0.9rem;cursor:pointer;color:var(--navy);font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all 0.15s
+}
+.dept-input-wrap button:hover{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.dept-input{
+  font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;
+  color:var(--navy);background:var(--off);border:1.5px solid var(--border);
+  padding:0.3rem 0.4rem;width:80px;text-align:center;transition:border-color 0.2s
+}
+.dept-input:focus{outline:none;border-color:var(--navy);background:var(--white)}
+.dept-prev{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--muted);text-align:right}
+.dept-change{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600;text-align:right}
+.dept-toggle{font-size:0.7rem;color:var(--muted);text-align:center;transition:transform 0.25s;user-select:none}
+.dept-toggle.open{transform:rotate(180deg)}
+
+/* PROGRAMS */
+.prog-list{display:none}
+.prog-list.open{display:block}
+.prog-col-head{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;
+  gap:0.75rem;padding:0.4rem 1.25rem 0.4rem 2.5rem;
+  background:#fafaf8;border-bottom:1px solid var(--border)
+}
+.prog-row{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;
+  gap:0.75rem;align-items:center;padding:0.6rem 1.25rem 0.6rem 2.5rem;
+  border-bottom:1px solid var(--border);transition:background 0.15s
+}
+.prog-row:last-child{border-bottom:none}
+.prog-row:hover{background:var(--off)}
+.prog-name{font-size:0.8rem;color:var(--dark)}
+.prog-agencies{font-size:0.7rem;color:var(--muted);margin-top:1px}
+.prog-pct{font-size:0.65rem;color:var(--muted);margin-top:1px;font-style:italic}
+.prog-input{
+  font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:600;
+  color:var(--navy);background:var(--off);border:1.5px solid var(--border);
+  padding:0.28rem 0.4rem;width:100%;text-align:right;transition:border-color 0.2s
+}
+.prog-input:focus{outline:none;border-color:var(--navy);background:var(--white)}
+.prog-input.user-edited{border-color:var(--orange);background:#fff7ed}
+
+/* DISCORD MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#1e1f22;border-radius:8px;padding:1.5rem;width:90%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;gap:1rem}
+.modal-header{display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:0.9rem;font-weight:700;color:var(--white);letter-spacing:0.05em}
+.modal-close{background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.2rem;cursor:pointer}
+.modal-close:hover{color:var(--white)}
+.discord-output{
+  font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#dcddde;
+  background:#2b2d31;padding:1rem;border-radius:4px;
+  white-space:pre-wrap;overflow-y:auto;flex:1;line-height:1.6
+}
+.modal-copy{
+  background:#5865f2;color:var(--white);border:none;padding:0.65rem;
+  font-family:'Source Sans 3',sans-serif;font-size:0.85rem;font-weight:700;
+  cursor:pointer;border-radius:4px;transition:background 0.2s
+}
+.modal-copy:hover{background:#4752c4}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .summary-sidebar{display:none}
+  .content{padding:1rem}
+  .tax-row,.dept-header,.prog-row{grid-template-columns:1fr 1fr;gap:0.35rem}
+  .tax-col-head,.dept-col-head,.prog-col-head{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="logo.png" alt="Bank of PROA">
+    <span>Bank of PROA</span>
+  </a>
+  <a href="index.html" class="nav-back">← Back to Home</a>
+</nav>
+
+<!-- SELECTOR BAR -->
+<div class="selector-bar">
+  <div class="selector-group">
+    <span class="selector-label">Government</span>
+    <select id="govtSelect" onchange="switchGovt()">
+      <option value="federal">🏛️ Federal</option>
+      <option value="ne">🔴 New England</option>
+      <option value="dixie">🟡 Dixie</option>
+      <option value="lincoln">🟢 Lincoln</option>
+      <option value="pacifica">🔵 Pacifica</option>
+    </select>
+  </div>
+  <div class="selector-divider"></div>
+  <div class="selector-group">
+    <span class="selector-label">Fiscal Year</span>
+    <select id="yearSelect" onchange="switchYear()">
+      <option value="1979-80">FY 1979-80</option>
+    </select>
+  </div>
+  <div class="selector-divider"></div>
+  <span id="govtBadge" class="govt-badge badge-federal">Federal Government</span>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SUMMARY SIDEBAR -->
+  <aside class="summary-sidebar">
+    <div class="summary-title">Budget Summary</div>
+
+    <div class="summary-card">
+      <div class="summary-card-label">Total Revenue</div>
+      <div class="summary-card-value" id="s-revenue">$0.0B</div>
+      <div class="summary-card-change" id="s-revenue-chg">—</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-card-label">Total Expenditure</div>
+      <div class="summary-card-value" id="s-expenditure">$0.0B</div>
+      <div class="summary-card-change" id="s-expenditure-chg">—</div>
+    </div>
+
+    <div class="summary-divider"></div>
+
+    <div class="summary-card">
+      <div class="summary-card-label" id="s-sd-label">Surplus / Deficit</div>
+      <div class="summary-card-value" id="s-sd">$0.0B</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-card-label">National Debt</div>
+      <div class="summary-card-value" id="s-debt">$0.0B</div>
+    </div>
+
+    <div class="summary-divider"></div>
+
+    <div class="summary-card">
+      <div class="summary-card-label">Income Tax</div>
+      <div class="summary-card-value" id="s-income">$0.0B</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">Corporate Tax</div>
+      <div class="summary-card-value" id="s-corporate">$0.0B</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">Payroll Tax</div>
+      <div class="summary-card-value" id="s-payroll">$0.0B</div>
+    </div>
+
+    <div class="summary-divider"></div>
+
+    <button class="discord-btn" onclick="openDiscord()">📋 Discord Overview</button>
+    <button class="export-btn" onclick="exportDoc()">⬇ Export Budget (.docx)</button>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="content" id="budgetContent">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- DISCORD MODAL -->
+<div class="modal-overlay" id="discordModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Discord Budget Overview</span>
+      <button class="modal-close" onclick="closeDiscord()">✕</button>
+    </div>
+    <div class="discord-output" id="discordOutput"></div>
+    <button class="modal-copy" onclick="copyDiscord()">Copy to Clipboard</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const FEDERAL_BASE = {
+  prevDebt: 994.8,
+  prevRevenue: 580.0,
+  prevExpenditure: 400.0,
+  incomeTax: [
+    { bracket:"$0 – $2,000",      base:16848112753.6,  prev:4.0,  curr:4.1  },
+    { bracket:"$2,001 – $4,000",  base:42478540041.0,  prev:8.0,  curr:8.2  },
+    { bracket:"$4,001 – $8,000",  base:76374349537.3,  prev:10.0, curr:10.3 },
+    { bracket:"$8,001 – $12,000", base:101504027971.8, prev:14.0, curr:14.0 },
+    { bracket:"$12,001 – $25,000",base:144922613591.5, prev:20.0, curr:22.0 },
+    { bracket:"$25,001 – $50,000",base:672900467766.2, prev:24.0, curr:25.0 },
+    { bracket:"$50,001+",         base:587856653439.5, prev:28.5, curr:30.0 },
+  ],
+  corporateTax: [
+    { bracket:"$0 – $25,000",          base:84544085.5,       prev:14.0, curr:15.0 },
+    { bracket:"$25,001 – $50,000",     base:1428811151.7,     prev:17.0, curr:18.0 },
+    { bracket:"$50,001 – $1,00,000",   base:8646780669.9,     prev:22.0, curr:22.0 },
+    { bracket:"$1,00,001 – $2,50,000", base:67220859457.0,    prev:24.0, curr:25.0 },
+    { bracket:"$2,50,000+",            base:297724091429.5,   prev:27.0, curr:26.0 },
+  ],
+  payroll: {
+    retirementAge: 62,
+    ssCap: 50000,
+    ssEmployee: { base:688644740967.8, prev:5.5, curr:5.5 },
+    ssEmployer: { base:688644740967.8, prev:5.5, curr:5.5 },
+    medEmployee: { base:1192040019453.1, prev:1.2, curr:1.2 },
+    medEmployer: { base:1192040019453.1, prev:1.2, curr:1.2 },
+  },
+  capitalGains: [
+    { bracket:"Long Term", base:28190135595.2, prev:12.4, curr:12.5 },
+  ],
+  excise: [
+    { bracket:"Gasoline",     base:10067905569.7, prev:4.1,  curr:4.1  },
+    { bracket:"Alcohol",      base:10067905569.7, prev:0.9,  curr:0.9  },
+    { bracket:"Tobacco",      base:10067905569.7, prev:2.0,  curr:2.0  },
+    { bracket:"Luxury Goods", base:10067905569.7, prev:10.0, curr:10.0 },
+  ],
+  departments: [
+    { name:"Department of Defense", prev:122.0, curr:161.0, programs:[
+      { name:"Personnel & Procurement",       agencies:"Army, Navy, Air Force & Marine Corps", pct:45, prev:61.0, curr:86.0 },
+      { name:"Equipments & Military Ops",     agencies:"",                                     pct:35, prev:40.0, curr:45.0 },
+      { name:"Research & Development",        agencies:"DARPA & Defense Research Agencies",    pct:20, prev:21.0, curr:30.0 },
+    ]},
+    { name:"Department of Health & Human Services", prev:32.7, curr:46.4, programs:[
+      { name:"Medicare & Medicaid",  agencies:"CMS", pct:50, prev:21.7, curr:34.0 },
+      { name:"Public Health",        agencies:"CDC", pct:20, prev:3.4,  curr:4.0  },
+      { name:"Medical Research",     agencies:"NIH", pct:15, prev:2.6,  curr:3.5  },
+      { name:"Healthcare Access",    agencies:"",    pct:15, prev:5.0,  curr:4.9  },
+    ]},
+    { name:"Department of State", prev:12.0, curr:0.0, programs:[
+      { name:"Overseas Operations", agencies:"",      pct:60, prev:4.0, curr:0.0 },
+      { name:"Foreign Aid",         agencies:"USAID", pct:40, prev:8.0, curr:0.0 },
+    ]},
+    { name:"Department of Justice", prev:18.8, curr:0.0, programs:[
+      { name:"Judiciary",        agencies:"Federal Courts",         pct:35, prev:5.0, curr:0.0 },
+      { name:"Law Enforcement",  agencies:"FBI, DEA, ATF & USMS",  pct:45, prev:9.0, curr:0.0 },
+      { name:"Prisons",          agencies:"Bureau of Prisons",      pct:20, prev:4.8, curr:0.0 },
+    ]},
+    { name:"Department of Education", prev:17.1, curr:0.0, programs:[
+      { name:"School Education", agencies:"K-12 Education",     pct:50, prev:7.0,  curr:0.0 },
+      { name:"Higher Education", agencies:"Colleges & Univs",   pct:35, prev:10.0, curr:0.0 },
+      { name:"Education Helps",  agencies:"Federal Student Aid", pct:15, prev:0.1,  curr:0.0 },
+    ]},
+    { name:"Department of Commerce", prev:5.0, curr:0.0, programs:[
+      { name:"International Trade",          agencies:"ITA", pct:35, prev:1.5, curr:0.0 },
+      { name:"Industrial Development",       agencies:"",    pct:40, prev:2.0, curr:0.0 },
+      { name:"Small & Medium Business Supp", agencies:"SBA", pct:25, prev:1.5, curr:0.0 },
+    ]},
+    { name:"Department of Agriculture", prev:8.0, curr:0.0, programs:[
+      { name:"Farmer Support",        agencies:"USDA",                    pct:55, prev:4.5, curr:0.0 },
+      { name:"SNAP & Food Programs",  agencies:"SNAP & Nutrition Svcs",   pct:45, prev:3.5, curr:0.0 },
+    ]},
+    { name:"Department of Treasury", prev:5.0, curr:0.0, programs:[
+      { name:"Financial Operations", agencies:"IRS & Treasury", pct:100, prev:5.0, curr:0.0 },
+    ]},
+    { name:"Department of Veteran Affairs", prev:8.0, curr:0.0, programs:[
+      { name:"Veterans Healthcare & Benefits", agencies:"VHA", pct:100, prev:8.0, curr:0.0 },
+    ]},
+    { name:"Department of Interior", prev:3.0, curr:0.0, programs:[
+      { name:"Natural Resources & Public Land", agencies:"NPS", pct:100, prev:3.0, curr:0.0 },
+    ]},
+    { name:"Department of Energy", prev:4.0, curr:0.0, programs:[
+      { name:"Energy Programs", agencies:"", pct:100, prev:4.0, curr:0.0 },
+    ]},
+    { name:"Department of Labor", prev:3.5, curr:0.0, programs:[
+      { name:"Workforce & Employment Programs", agencies:"ETA", pct:100, prev:3.5, curr:0.0 },
+    ]},
+    { name:"Department of Transportation", prev:6.0, curr:0.0, programs:[
+      { name:"Urban Connectivity", agencies:"FHWA & FTA", pct:55, prev:3.3, curr:0.0 },
+      { name:"Rural Connectivity", agencies:"FHWA",       pct:45, prev:2.7, curr:0.0 },
+    ]},
+    { name:"Department of Housing & Urban Dev.", prev:7.0, curr:0.0, programs:[
+      { name:"Housing Programs",  agencies:"", pct:60, prev:4.2, curr:0.0 },
+      { name:"Urban Development", agencies:"", pct:40, prev:2.8, curr:0.0 },
+    ]},
+    { name:"NASA", prev:2.5, curr:0.0, programs:[
+      { name:"Space Exploration Programs", agencies:"", pct:100, prev:2.5, curr:0.0 },
+    ]},
+    { name:"Social Security Administration", prev:40.0, curr:0.0, programs:[
+      { name:"Social Security", agencies:"", pct:100, prev:40.0, curr:0.0 },
+    ]},
+    { name:"Other Expenses", prev:25.0, curr:0.0, programs:[
+      { name:"Net Interest On Debt",   agencies:"", pct:60, prev:15.0, curr:0.0 },
+      { name:"General Administration", agencies:"", pct:20, prev:5.0,  curr:0.0 },
+      { name:"Legislative Affairs",    agencies:"", pct:15, prev:3.75, curr:0.0 },
+      { name:"Revive Dixie Package",   agencies:"", pct:5,  prev:1.25, curr:0.0 },
+    ]},
+  ]
+};
+
+// Region base (New England structure)
+const REGION_BASE = {
+  prevDebt: 150.0,
+  prevRevenue: 54.1,
+  prevExpenditure: 72.0,
+  incomeTax: [
+    { bracket:"$0 – $2,000",       base:16848112753.6/10, prev:2.0,  curr:2.1  },
+    { bracket:"$2,001 – $12,000",  base:42478540041.0/10, prev:4.0,  curr:4.0  },
+    { bracket:"$12,001 – $50,000", base:76374349537.3/10, prev:6.0,  curr:5.0  },
+    { bracket:"$50,001+",          base:101504027971.8/10,prev:8.2,  curr:6.2  },
+  ],
+  corporateTax: [
+    { bracket:"$0 – $25,000",           base:84544085.5/10,     prev:4.0, curr:3.8 },
+    { bracket:"$1,00,001 – $2,50,000",  base:1428811151.7/10,   prev:5.0, curr:4.9 },
+    { bracket:"$2,50,000+",             base:8646780669.9/10,   prev:6.0, curr:5.9 },
+  ],
+  capitalGains: [
+    { bracket:"Long Term", base:28190135595.2/10, prev:12.4, curr:12.8 },
+  ],
+  excise: [
+    { bracket:"Gasoline",     base:10067905569.7/10, prev:4.1,  curr:4.0  },
+    { bracket:"Alcohol",      base:10067905569.7/10, prev:0.9,  curr:0.5  },
+    { bracket:"Tobacco",      base:10067905569.7/10, prev:2.0,  curr:6.0  },
+    { bracket:"Luxury Goods", base:10067905569.7/10, prev:10.0, curr:13.0 },
+  ],
+  servicesTax: [
+    { bracket:"Goods & Commodities", base:10067905569.7/10, prev:5.0, curr:5.0 },
+    { bracket:"Service Industry",    base:10067905569.7/10, prev:4.0, curr:4.0 },
+  ],
+  federalGrants: 11709733883.61,
+  departments: [
+    { name:"Department of Education", prev:12.0, curr:9.5, programs:[
+      { name:"School Education",     agencies:"K-12 Schools",       pct:42, prev:5.0, curr:4.0 },
+      { name:"Higher Education",     agencies:"Colleges & Univs",   pct:47, prev:5.0, curr:4.5 },
+      { name:"Workforce & Training", agencies:"Vocational Training", pct:11, prev:2.0, curr:1.0 },
+    ]},
+    { name:"Department of Health & Human Services", prev:8.2, curr:8.25, programs:[
+      { name:"Healthcare",    agencies:"Medicaid & Insurance", pct:73, prev:6.0, curr:6.0 },
+      { name:"Public Health", agencies:"Disease Prevention",   pct:27, prev:2.2, curr:2.25},
+    ]},
+    { name:"Department of Transportation", prev:9.0, curr:8.96, programs:[
+      { name:"Highways & Roads", agencies:"", pct:45, prev:4.0, curr:4.0  },
+      { name:"Public Transit",   agencies:"", pct:33, prev:3.0, curr:3.0  },
+      { name:"Ports & Aviation", agencies:"", pct:22, prev:2.0, curr:1.96 },
+    ]},
+    { name:"Department of Public Safety", prev:14.2, curr:14.8, programs:[
+      { name:"Law Enforcement",      agencies:"", pct:68, prev:9.4,  curr:10.0 },
+      { name:"Emergency Management", agencies:"", pct:32, prev:4.8,  curr:4.8  },
+    ]},
+    { name:"Department of Justice", prev:1.9, curr:1.8, programs:[
+      { name:"Judiciary", agencies:"State Courts",      pct:56, prev:1.1, curr:1.0 },
+      { name:"Prisons",   agencies:"Bureau of Prisons", pct:44, prev:0.8, curr:0.8 },
+    ]},
+    { name:"Department of Housing & Urban Dev.", prev:10.0, curr:7.5, programs:[
+      { name:"Housing",           agencies:"", pct:27, prev:2.5, curr:2.0 },
+      { name:"Urban Development", agencies:"", pct:73, prev:7.5, curr:5.5 },
+    ]},
+    { name:"Department of Commerce & Industry", prev:4.8, curr:7.5, programs:[
+      { name:"Business & Industry", agencies:"", pct:80, prev:4.0, curr:6.0 },
+      { name:"Labor & Employment",  agencies:"", pct:20, prev:0.8, curr:1.5 },
+    ]},
+    { name:"Department of Agriculture", prev:4.4, curr:5.5, programs:[
+      { name:"Farmer Support", agencies:"", pct:64, prev:2.8, curr:3.5 },
+      { name:"Food Programs",  agencies:"", pct:36, prev:1.6, curr:2.0 },
+    ]},
+    { name:"Department of Revenue & Finance", prev:0.9, curr:1.3, programs:[
+      { name:"Financial Operations", agencies:"", pct:100, prev:0.9, curr:1.3 },
+    ]},
+    { name:"General Administration", prev:0.6, curr:0.7, programs:[
+      { name:"Administration", agencies:"", pct:100, prev:0.6, curr:0.7 },
+    ]},
+    { name:"Department of Social Services", prev:2.1, curr:2.2, programs:[
+      { name:"Rural Development", agencies:"", pct:73, prev:1.5, curr:1.6 },
+      { name:"Natural Resources",  agencies:"", pct:27, prev:0.6, curr:0.6 },
+    ]},
+    { name:"Other Expenses", prev:10.95, curr:12.45, programs:[
+      { name:"Net Interest On Debt",       agencies:"", pct:90, prev:9.7,  curr:11.2 },
+      { name:"Make America Healthy Again", agencies:"", pct:8,  prev:0.95, curr:1.25 },
+      { name:"Debt Repayment",             agencies:"", pct:2,  prev:0.3,  curr:0.0  },
+    ]},
+  ]
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let govt = 'federal';
+let year = '1979-80';
+let state = JSON.parse(JSON.stringify(FEDERAL_BASE));
+let payrollLinked = { ss: true, med: true };
+
+// ============================================================
+// HELPERS
+// ============================================================
+const fmtB = n => {
+  const b = Math.abs(n/1e9);
+  const s = b >= 1 ? b.toFixed(1) : b.toFixed(2);
+  return (n < 0 ? '–$' : '$') + s + 'B';
+};
+const fmtFull = n => {
+  const a = Math.abs(n);
+  return (n < 0 ? '–$' : '$') + a.toLocaleString('en-US',{maximumFractionDigits:0});
+};
+const fmtPct = (cy, py) => {
+  if (!py) return '—';
+  const d = ((cy - py) / Math.abs(py) * 100).toFixed(1);
+  return (d >= 0 ? '+' : '') + d + '%';
+};
+const fmtRateChg = (cy, py) => {
+  const d = (cy - py).toFixed(2);
+  return (d >= 0 ? '+' : '') + d + '%';
+};
+const projRevenue = (base, rate) => base * (rate / 100);
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+function calcTotals() {
+  let revenue = 0;
+
+  if (govt === 'federal') {
+    // Income tax
+    state.incomeTax.forEach(r => revenue += projRevenue(r.base, r.curr));
+    // Corporate
+    state.corporateTax.forEach(r => revenue += projRevenue(r.base, r.curr));
+    // Payroll
+    const p = state.payroll;
+    revenue += projRevenue(p.ssEmployee.base, p.ssEmployee.curr);
+    revenue += projRevenue(p.ssEmployer.base, p.ssEmployer.curr);
+    revenue += projRevenue(p.medEmployee.base, p.medEmployee.curr);
+    revenue += projRevenue(p.medEmployer.base, p.medEmployer.curr);
+    // Capital gains
+    state.capitalGains.forEach(r => revenue += projRevenue(r.base, r.curr));
+    // Excise
+    state.excise.forEach(r => revenue += projRevenue(r.base, r.curr));
+  } else {
+    state.incomeTax.forEach(r => revenue += projRevenue(r.base, r.curr));
+    state.corporateTax.forEach(r => revenue += projRevenue(r.base, r.curr));
+    state.capitalGains.forEach(r => revenue += projRevenue(r.base, r.curr));
+    state.excise.forEach(r => revenue += projRevenue(r.base, r.curr));
+    state.servicesTax.forEach(r => revenue += projRevenue(r.base, r.curr));
+    revenue += state.federalGrants;
+  }
+
+  const expenditure = state.departments.reduce((s, d) => s + (d.curr * 1e9), 0);
+  const sd = revenue - expenditure;
+  const prevDebt = state.prevDebt * 1e9;
+  const debt = prevDebt + Math.max(0, -sd);
+
+  return { revenue, expenditure, sd, debt };
+}
+
+function calcGroupTotal(group, key) {
+  return group.reduce((s, r) => s + projRevenue(r.base, r[key]), 0);
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render() {
+  renderContent();
+  updateSummary();
+}
+
+function renderContent() {
+  const el = document.getElementById('budgetContent');
+  el.innerHTML = '';
+
+  // REVENUE SECTION
+  const revDiv = document.createElement('div');
+  revDiv.innerHTML = `
+    <div class="section-header">
+      <div class="section-num">IV</div>
+      <div class="section-title-text">Revenue</div>
+      <div class="section-total" id="rev-total">${fmtB(calcTotals().revenue)}</div>
+    </div>
+  `;
+
+  if (govt === 'federal') {
+    revDiv.appendChild(makeTaxGroup('Income Tax', state.incomeTax, 'incomeTax', 'it'));
+    revDiv.appendChild(makeTaxGroup('Corporate Tax', state.corporateTax, 'corporateTax', 'ct'));
+    revDiv.appendChild(makePayrollGroup());
+    revDiv.appendChild(makeTaxGroup('Capital Gains Tax', state.capitalGains, 'capitalGains', 'cg'));
+    revDiv.appendChild(makeTaxGroup('Excise Tax', state.excise, 'excise', 'ex'));
+  } else {
+    revDiv.appendChild(makeTaxGroup('Income Tax', state.incomeTax, 'incomeTax', 'it'));
+    revDiv.appendChild(makeTaxGroup('Corporate Tax', state.corporateTax, 'corporateTax', 'ct'));
+    revDiv.appendChild(makeTaxGroup('Capital Gains Tax', state.capitalGains, 'capitalGains', 'cg'));
+    revDiv.appendChild(makeTaxGroup('Excise Tax', state.excise, 'excise', 'ex'));
+    revDiv.appendChild(makeTaxGroup('Services Tax', state.servicesTax, 'servicesTax', 'st'));
+    revDiv.appendChild(makeGrantsRow());
+  }
+
+  el.appendChild(revDiv);
+
+  // EXPENDITURE SECTION
+  const expDiv = document.createElement('div');
+  expDiv.style.marginTop = '2rem';
+  const totalExp = state.departments.reduce((s,d) => s + d.curr, 0);
+  expDiv.innerHTML = `
+    <div class="section-header">
+      <div class="section-num">V</div>
+      <div class="section-title-text">Expenditures</div>
+      <div class="section-total">${totalExp.toFixed(1)}B</div>
+    </div>
+  `;
+
+  // Column headers
+  const colHead = document.createElement('div');
+  colHead.className = 'tax-col-head';
+  colHead.style.cssText = 'grid-template-columns:2fr 1fr 1fr 1fr 100px;margin-bottom:0.25rem';
+  colHead.innerHTML = `
+    <div class="col-label">Department / Program</div>
+    <div class="col-label" style="text-align:right">Prev Year (B)</div>
+    <div class="col-label" style="text-align:right">Current Year (B)</div>
+    <div class="col-label" style="text-align:right">$ Change</div>
+    <div class="col-label" style="text-align:center">▼</div>
+  `;
+  expDiv.appendChild(colHead);
+
+  state.departments.forEach((dept, di) => {
+    expDiv.appendChild(makeDeptGroup(dept, di));
+  });
+
+  el.appendChild(expDiv);
+}
+
+function makeTaxGroup(title, rows, stateKey, prefix) {
+  const total = calcGroupTotal(rows, 'curr');
+  const div = document.createElement('div');
+  div.className = 'tax-group';
+  div.innerHTML = `
+    <div class="tax-group-header" onclick="toggleGroup(this)">
+      <div class="tax-group-title">${title}</div>
+      <div class="tax-group-total">${fmtB(total)}</div>
+      <div class="tax-group-toggle open">▼</div>
+    </div>
+    <div class="tax-group-body open">
+      <div class="tax-col-head">
+        <div class="col-label">Bracket</div>
+        <div class="col-label" style="text-align:right">Prev Rate</div>
+        <div class="col-label" style="text-align:right">Current Rate</div>
+        <div class="col-label" style="text-align:right">% Change</div>
+        <div class="col-label" style="text-align:right">Projected</div>
+      </div>
+      ${rows.map((r, i) => `
+        <div class="tax-row">
+          <div class="tax-row-label">${r.bracket}</div>
+          <div class="prev-rate">${r.prev.toFixed(2)}%</div>
+          <input class="rate-input" type="number" step="0.1" value="${r.curr.toFixed(2)}"
+            onchange="updateRate('${stateKey}', ${i}, this)"
+            oninput="updateRate('${stateKey}', ${i}, this)">
+          <div class="pct-change ${r.curr > r.prev ? 'pct-pos' : r.curr < r.prev ? 'pct-neg' : 'pct-zero'}" id="${prefix}-chg-${i}">
+            ${fmtRateChg(r.curr, r.prev)}
+          </div>
+          <div class="proj-revenue" id="${prefix}-proj-${i}">${fmtB(projRevenue(r.base, r.curr))}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  return div;
+}
+
+function makePayrollGroup() {
+  const p = state.payroll;
+  const ssTotal = projRevenue(p.ssEmployee.base, p.ssEmployee.curr) * 2;
+  const medTotal = projRevenue(p.medEmployee.base, p.medEmployee.curr) * 2;
+  const total = ssTotal + medTotal;
+
+  const div = document.createElement('div');
+  div.className = 'tax-group';
+  div.innerHTML = `
+    <div class="tax-group-header" onclick="toggleGroup(this)">
+      <div class="tax-group-title">Payroll Tax <span style="font-size:0.65rem;font-weight:400;margin-left:0.5rem;color:var(--muted)">Retirement Age: ${p.retirementAge} | SS Cap: $${p.ssCap.toLocaleString()}</span></div>
+      <div class="tax-group-total">${fmtB(total)}</div>
+      <div class="tax-group-toggle open">▼</div>
+    </div>
+    <div class="tax-group-body open">
+      <div class="tax-col-head">
+        <div class="col-label">Type</div>
+        <div class="col-label" style="text-align:right">Prev Rate</div>
+        <div class="col-label" style="text-align:right">Current Rate</div>
+        <div class="col-label" style="text-align:right">% Change</div>
+        <div class="col-label" style="text-align:right">Projected (Both)</div>
+      </div>
+      <div class="tax-row">
+        <div class="tax-row-label">Social Security (Employee)</div>
+        <div class="prev-rate">${p.ssEmployee.prev.toFixed(2)}%</div>
+        <input class="rate-input" id="ss-emp-input" type="number" step="0.1" value="${p.ssEmployee.curr.toFixed(2)}"
+          oninput="updatePayroll('ss','employee', this)">
+        <div class="pct-change ${p.ssEmployee.curr !== p.ssEmployee.prev ? 'pct-pos' : 'pct-zero'}" id="ss-emp-chg">${fmtRateChg(p.ssEmployee.curr, p.ssEmployee.prev)}</div>
+        <div class="proj-revenue" id="ss-proj">${fmtB(ssTotal)}</div>
+      </div>
+      <div class="tax-row">
+        <div class="tax-row-label">Social Security (Employer)</div>
+        <div class="prev-rate">${p.ssEmployer.prev.toFixed(2)}%</div>
+        <input class="rate-input" id="ss-emp2-input" type="number" step="0.1" value="${p.ssEmployer.curr.toFixed(2)}"
+          oninput="updatePayroll('ss','employer', this)">
+        <div class="pct-change ${p.ssEmployer.curr !== p.ssEmployer.prev ? 'pct-pos' : 'pct-zero'}" id="ss-emp2-chg">${fmtRateChg(p.ssEmployer.curr, p.ssEmployer.prev)}</div>
+        <div class="proj-revenue"></div>
+      </div>
+      <div class="tax-row">
+        <div class="tax-row-label">Medicare (Employee)</div>
+        <div class="prev-rate">${p.medEmployee.prev.toFixed(2)}%</div>
+        <input class="rate-input" id="med-emp-input" type="number" step="0.1" value="${p.medEmployee.curr.toFixed(2)}"
+          oninput="updatePayroll('med','employee', this)">
+        <div class="pct-change ${p.medEmployee.curr !== p.medEmployee.prev ? 'pct-pos' : 'pct-zero'}" id="med-emp-chg">${fmtRateChg(p.medEmployee.curr, p.medEmployee.prev)}</div>
+        <div class="proj-revenue" id="med-proj">${fmtB(medTotal)}</div>
+      </div>
+      <div class="tax-row">
+        <div class="tax-row-label">Medicare (Employer)</div>
+        <div class="prev-rate">${p.medEmployer.prev.toFixed(2)}%</div>
+        <input class="rate-input" id="med-emp2-input" type="number" step="0.1" value="${p.medEmployer.curr.toFixed(2)}"
+          oninput="updatePayroll('med','employer', this)">
+        <div class="pct-change ${p.medEmployer.curr !== p.medEmployer.prev ? 'pct-pos' : 'pct-zero'}" id="med-emp2-chg">${fmtRateChg(p.medEmployer.curr, p.medEmployer.prev)}</div>
+        <div class="proj-revenue"></div>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+function makeGrantsRow() {
+  const div = document.createElement('div');
+  div.className = 'tax-group';
+  div.innerHTML = `
+    <div class="tax-group-header">
+      <div class="tax-group-title">Federal Grants</div>
+      <div class="tax-group-total">${fmtB(state.federalGrants)}</div>
+    </div>
+    <div class="tax-group-body open">
+      <div class="tax-row">
+        <div class="tax-row-label" style="color:var(--muted);font-style:italic;font-size:0.75rem">Federal grants received from the Federal Government under various fiscal assistance schemes and intergovernmental transfer programs.</div>
+        <div></div>
+        <div class="proj-revenue">${fmtB(state.federalGrants)}</div>
+        <div></div><div></div>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+function makeDeptGroup(dept, di) {
+  const change = dept.curr - dept.prev;
+  const changeStr = (change >= 0 ? '+' : '') + change.toFixed(1) + 'B';
+  const changeClass = change > 0 ? 'pct-pos' : change < 0 ? 'pct-neg' : 'pct-zero';
+
+  const div = document.createElement('div');
+  div.className = 'dept-group';
+  div.innerHTML = `
+    <div class="dept-header" onclick="toggleDept(this, ${di})">
+      <div class="dept-name">${dept.name}</div>
+      <div class="prev-rate" style="text-align:right">${dept.prev.toFixed(1)}B</div>
+      <div class="dept-input-wrap">
+        <button onclick="event.stopPropagation();adjustDept(${di}, -0.1)">−</button>
+        <input class="dept-input" id="dept-${di}" type="number" step="0.1" value="${dept.curr.toFixed(1)}"
+          onclick="event.stopPropagation()"
+          oninput="updateDept(${di}, this)">
+        <button onclick="event.stopPropagation();adjustDept(${di}, 0.1)">+</button>
+      </div>
+      <div class="dept-change ${changeClass}" id="dept-chg-${di}">${changeStr}</div>
+      <div class="dept-toggle" id="dept-toggle-${di}">▼</div>
+    </div>
+    <div class="prog-list" id="prog-list-${di}">
+      <div class="prog-col-head">
+        <div class="col-label">Program</div>
+        <div class="col-label" style="text-align:right">Prev (B)</div>
+        <div class="col-label" style="text-align:right">Current (B)</div>
+        <div class="col-label" style="text-align:right">$ Change</div>
+        <div class="col-label" style="text-align:right">Split %</div>
+      </div>
+      ${dept.programs.map((p, pi) => {
+        const pc = p.curr - p.prev;
+        const pcStr = (pc >= 0 ? '+' : '') + pc.toFixed(2) + 'B';
+        const pcClass = pc > 0 ? 'pct-pos' : pc < 0 ? 'pct-neg' : 'pct-zero';
+        return `
+          <div class="prog-row">
+            <div>
+              <div class="prog-name">${p.name}</div>
+              ${p.agencies ? `<div class="prog-agencies">${p.agencies}</div>` : ''}
+            </div>
+            <div class="prev-rate" style="text-align:right">${p.prev.toFixed(2)}B</div>
+            <input class="prog-input ${p.userEdited ? 'user-edited' : ''}" id="prog-${di}-${pi}" type="number" step="0.01" value="${p.curr.toFixed(2)}"
+              oninput="updateProg(${di}, ${pi}, this)">
+            <div class="pct-change ${pcClass}" id="prog-chg-${di}-${pi}">${pcStr}</div>
+            <div class="prog-pct" style="text-align:right;font-size:0.75rem;color:var(--muted)">${p.pct}%</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+  return div;
+}
+
+// ============================================================
+// INTERACTIONS
+// ============================================================
+function toggleGroup(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.tax-group-toggle');
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function toggleDept(header, di) {
+  const list = document.getElementById(`prog-list-${di}`);
+  const toggle = document.getElementById(`dept-toggle-${di}`);
+  list.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function updateRate(key, i, input) {
+  const val = parseFloat(input.value) || 0;
+  state[key][i].curr = val;
+  input.classList.add('user-edited');
+  updateSummary();
+  // Update change indicator and projected
+  const prefix = {incomeTax:'it',corporateTax:'ct',capitalGains:'cg',excise:'ex',servicesTax:'st'}[key];
+  const chgEl = document.getElementById(`${prefix}-chg-${i}`);
+  const projEl = document.getElementById(`${prefix}-proj-${i}`);
+  const r = state[key][i];
+  if (chgEl) {
+    const diff = r.curr - r.prev;
+    chgEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2) + '%';
+    chgEl.className = `pct-change ${diff > 0 ? 'pct-pos' : diff < 0 ? 'pct-neg' : 'pct-zero'}`;
+  }
+  if (projEl) projEl.textContent = fmtB(projRevenue(r.base, r.curr));
+  // Update group total
+  const groupHeaders = document.querySelectorAll('.tax-group-total');
+  updateSummary();
+}
+
+function updatePayroll(type, side, input) {
+  const val = parseFloat(input.value) || 0;
+  const p = state.payroll;
+
+  if (type === 'ss') {
+    if (side === 'employee') {
+      p.ssEmployee.curr = val;
+      // Mirror to employer if not manually broken
+      if (payrollLinked.ss) {
+        p.ssEmployer.curr = val;
+        const emp2 = document.getElementById('ss-emp2-input');
+        if (emp2) emp2.value = val.toFixed(2);
+      } else {
+        payrollLinked.ss = false;
+      }
+    } else {
+      p.ssEmployer.curr = val;
+      payrollLinked.ss = false;
+    }
+  } else {
+    if (side === 'employee') {
+      p.medEmployee.curr = val;
+      if (payrollLinked.med) {
+        p.medEmployer.curr = val;
+        const emp2 = document.getElementById('med-emp2-input');
+        if (emp2) emp2.value = val.toFixed(2);
+      } else {
+        payrollLinked.med = false;
+      }
+    } else {
+      p.medEmployer.curr = val;
+      payrollLinked.med = false;
+    }
+  }
+
+  // Update projected displays
+  const ssTotal = projRevenue(p.ssEmployee.base, p.ssEmployee.curr) * 2;
+  const medTotal = projRevenue(p.medEmployee.base, p.medEmployee.curr) * 2;
+  const ssProj = document.getElementById('ss-proj');
+  const medProj = document.getElementById('med-proj');
+  if (ssProj) ssProj.textContent = fmtB(ssTotal);
+  if (medProj) medProj.textContent = fmtB(medTotal);
+
+  updateSummary();
+}
+
+function updateDept(di, input) {
+  const val = parseFloat(input.value) || 0;
+  const dept = state.departments[di];
+  dept.curr = val;
+
+  // Auto-split programs by percentage
+  dept.programs.forEach((p, pi) => {
+    if (!p.userEdited) {
+      p.curr = (val * p.pct) / 100;
+      const progInput = document.getElementById(`prog-${di}-${pi}`);
+      if (progInput) progInput.value = p.curr.toFixed(2);
+      const chgEl = document.getElementById(`prog-chg-${di}-${pi}`);
+      if (chgEl) {
+        const diff = p.curr - p.prev;
+        chgEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'B';
+        chgEl.className = `pct-change ${diff > 0 ? 'pct-pos' : diff < 0 ? 'pct-neg' : 'pct-zero'}`;
+      }
+    }
+  });
+
+  // Update dept change
+  const change = val - dept.prev;
+  const chgEl = document.getElementById(`dept-chg-${di}`);
+  if (chgEl) {
+    chgEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(1) + 'B';
+    chgEl.className = `dept-change ${change > 0 ? 'pct-pos' : change < 0 ? 'pct-neg' : 'pct-zero'}`;
+  }
+
+  updateSummary();
+}
+
+function adjustDept(di, delta) {
+  const dept = state.departments[di];
+  const newVal = Math.max(0, dept.curr + delta);
+  dept.curr = Math.round(newVal * 10) / 10;
+  const input = document.getElementById(`dept-${di}`);
+  if (input) {
+    input.value = dept.curr.toFixed(1);
+    updateDept(di, input);
+  }
+}
+
+function updateProg(di, pi, input) {
+  const val = parseFloat(input.value) || 0;
+  const dept = state.departments[di];
+  const prog = dept.programs[pi];
+  prog.curr = val;
+  prog.userEdited = true;
+  input.classList.add('user-edited');
+
+  // Recalculate dept total from programs
+  const newTotal = dept.programs.reduce((s, p) => s + p.curr, 0);
+  dept.curr = newTotal;
+  const deptInput = document.getElementById(`dept-${di}`);
+  if (deptInput) deptInput.value = newTotal.toFixed(1);
+
+  // Update dept change
+  const change = newTotal - dept.prev;
+  const chgEl = document.getElementById(`dept-chg-${di}`);
+  if (chgEl) {
+    chgEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(1) + 'B';
+    chgEl.className = `dept-change ${change > 0 ? 'pct-pos' : change < 0 ? 'pct-neg' : 'pct-zero'}`;
+  }
+
+  // Update prog change
+  const diff = val - prog.prev;
+  const progChg = document.getElementById(`prog-chg-${di}-${pi}`);
+  if (progChg) {
+    progChg.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'B';
+    progChg.className = `pct-change ${diff > 0 ? 'pct-pos' : diff < 0 ? 'pct-neg' : 'pct-zero'}`;
+  }
+
+  updateSummary();
+}
+
+// ============================================================
+// SUMMARY UPDATE
+// ============================================================
+function updateSummary() {
+  const { revenue, expenditure, sd, debt } = calcTotals();
+
+  document.getElementById('s-revenue').textContent = fmtB(revenue);
+  document.getElementById('s-expenditure').textContent = fmtB(expenditure);
+
+  const sdEl = document.getElementById('s-sd');
+  const sdLabel = document.getElementById('s-sd-label');
+  sdEl.textContent = fmtB(Math.abs(sd));
+  sdEl.className = `summary-card-value ${sd >= 0 ? 'surplus' : 'deficit'}`;
+  sdLabel.textContent = sd >= 0 ? 'Surplus' : 'Deficit';
+
+  document.getElementById('s-debt').textContent = fmtB(debt);
+
+  if (govt === 'federal') {
+    const itTotal = calcGroupTotal(state.incomeTax, 'curr');
+    const ctTotal = calcGroupTotal(state.corporateTax, 'curr');
+    const p = state.payroll;
+    const payTotal =
+      projRevenue(p.ssEmployee.base, p.ssEmployee.curr) +
+      projRevenue(p.ssEmployer.base, p.ssEmployer.curr) +
+      projRevenue(p.medEmployee.base, p.medEmployee.curr) +
+      projRevenue(p.medEmployer.base, p.medEmployer.curr);
+    document.getElementById('s-income').textContent = fmtB(itTotal);
+    document.getElementById('s-corporate').textContent = fmtB(ctTotal);
+    document.getElementById('s-payroll').textContent = fmtB(payTotal);
+  }
+}
+
+// ============================================================
+// GOVT / YEAR SWITCH
+// ============================================================
+function switchGovt() {
+  govt = document.getElementById('govtSelect').value;
+  state = JSON.parse(JSON.stringify(govt === 'federal' ? FEDERAL_BASE : REGION_BASE));
+  payrollLinked = { ss: true, med: true };
+
+  const badges = {
+    federal:  ['badge-federal','🏛️ Federal Government'],
+    ne:       ['badge-ne',     '🔴 New England'],
+    dixie:    ['badge-dixie',  '🟡 Dixie'],
+    lincoln:  ['badge-lincoln','🟢 Lincoln'],
+    pacifica: ['badge-pacifica','🔵 Pacifica'],
+  };
+  const badge = document.getElementById('govtBadge');
+  badge.className = `govt-badge ${badges[govt][0]}`;
+  badge.textContent = badges[govt][1];
+
+  // Show/hide payroll sidebar cards
+  const payrollCard = document.getElementById('s-payroll')?.parentElement;
+  if (payrollCard) payrollCard.style.display = govt === 'federal' ? 'block' : 'none';
+
+  render();
+}
+
+function switchYear() {
+  year = document.getElementById('yearSelect').value;
+}
+
+// ============================================================
+// DISCORD OVERVIEW
+// ============================================================
+function openDiscord() {
+  const { revenue, expenditure, sd, debt } = calcTotals();
+  const govtNames = {federal:'PROA (Federal)',ne:'New England',dixie:'Dixie',lincoln:'Lincoln',pacifica:'Pacifica'};
+  const isRepub = sd >= 0 ? false : true; // simplified
+  const lean = sd >= 0 ? '🔵 Democratic-Leaning' : '🔴 Republican-Leaning';
+
+  const text = `# 💰🇺🇸 | FY ${year} — ${govtNames[govt].toUpperCase()} BUDGET OVERVIEW
+> ${lean} Budget
+
+## | BUDGET STATUS
+| FY ${year}
+| Status: Draft
+
+## | FISCAL OVERVIEW
+| Revenue: ${fmtB(revenue)} | Expenditure: ${fmtB(expenditure)}
+| ${sd >= 0 ? 'Surplus' : 'Deficit'}: ${fmtB(Math.abs(sd))} | Debt: ${fmtB(debt)}
+
+## | EXPENDITURE HIGHLIGHTS
+${state.departments.slice(0,5).map(d => `| ${d.name}: ${d.curr.toFixed(1)}B (${d.curr > d.prev ? '+' : ''}${(d.curr - d.prev).toFixed(1)}B)`).join('\n')}`;
+
+  document.getElementById('discordOutput').textContent = text;
+  document.getElementById('discordModal').classList.add('open');
+}
+
+function closeDiscord() {
+  document.getElementById('discordModal').classList.remove('open');
+}
+
+function copyDiscord() {
+  navigator.clipboard.writeText(document.getElementById('discordOutput').textContent);
+  const btn = document.querySelector('.modal-copy');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
+}
+
+// ============================================================
+// EXPORT DOC
+// ============================================================
+function exportDoc() {
+  alert('Export functionality requires the docx library.\nIntegrate with the generate_budget.js script for full export.');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+render();
+</script>
+</body>
+</html>
